@@ -1,0 +1,16 @@
+# authentication-service/helm/finpay-auth-service/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: finpay-auth-service
+  labels:
+    app: finpay-auth-service
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: 8081
+      protocol: TCP
+      name: http
+  selector:
+    app: finpay-auth-service
