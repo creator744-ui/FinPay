@@ -82,3 +82,6 @@ logging:
   level:
     org.springframework.cloud.gateway: DEBUG
     com.finpay: DEBUG
+#  filters:
+#    - RemovePrefix=1
+#    - name: CustomAuthenticationFilter
