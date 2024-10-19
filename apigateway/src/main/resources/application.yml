@@ -6,6 +6,8 @@ spring:
   application:
     name: finpay-api-gateway
   cloud:
+    config:
+      enabled: false
     gateway:
       routes:
         - id: auth-service
