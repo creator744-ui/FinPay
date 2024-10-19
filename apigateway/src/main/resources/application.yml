@@ -1,0 +1,84 @@
+# FinPay/api-gateway/src/main/resources/application.yml
+server:
+  port: 8080
+
+spring:
+  application:
+    name: finpay-api-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: auth-service
+          uri: lb://authentication-service
+          predicates:
+            - Path=/api/auth/**
+
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/api/users/**
+          filters:
+            - RemovePrefix=1
+
+        - id: invoice-service
+          uri: lb://invoice-service
+          predicates:
+            - Path=/api/invoices/**
+          filters:
+            - RemovePrefix=1
+
+        - id: payment-service
+          uri: lb://payment-service
+          predicates:
+            - Path=/api/payments/**
+          filters:
+            - RemovePrefix=1
+
+        - id: virtual-card-service
+          uri: lb://virtual-card-service
+          predicates:
+            - Path=/api/cards/**
+          filters:
+            - RemovePrefix=1
+
+        - id: virtual-account-service
+          uri: lb://virtual-account-service
+          predicates:
+            - Path=/api/accounts/**
+          filters:
+            - RemovePrefix=1
+
+        - id: reporting-service
+          uri: lb://reporting-service
+          predicates:
+            - Path=/api/reports/**
+          filters:
+            - RemovePrefix=1
+
+        - id: notification-service
+          uri: lb://notification-service
+          predicates:
+            - Path=/api/notifications/**
+          filters:
+            - RemovePrefix=1
+
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials
+        - AddResponseHeader=Access-Control-Allow-Origin "*"
+        - AddResponseHeader=Access-Control-Allow-Credentials "true"
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8081/api/auth # Adjust based on Authentication Service's actual issuer URI
+
+jwt:
+  secret: YourJWTSecretKey # Should be managed securely, e.g., via environment variables or config server
+  expiration: 86400000 # 24 hours in milliseconds
+
+# Logging Configuration
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    com.finpay: DEBUG
