@@ -1,0 +1,42 @@
+# FinPay/user-service/helm/finpay-user-service/values.yaml
+replicaCount: 2
+
+image:
+  repository: yourdockerhubusername/finpay-user-service
+  pullPolicy: IfNotPresent
+  tag: "0.0.1-SNAPSHOT"
+
+service:
+  type: ClusterIP
+  port: 8082
+
+env:
+  - name: SPRING_PROFILES_ACTIVE
+    value: "prod"
+  - name: SPRING_DATASOURCE_URL
+    value: jdbc:postgresql://finpay-db:5432/finpay_user
+  - name: SPRING_DATASOURCE_USERNAME
+    value: postgres
+  - name: SPRING_DATASOURCE_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: finpay-user-service-secrets
+        key: spring.datasource.password
+  - name: JWT_SECRET
+    valueFrom:
+      secretKeyRef:
+        name: finpay-user-service-secrets
+        key: jwt.secret
+  - name: JWT_EXPIRATION
+    value: "86400000"
+
+resources:
+  limits:
+    cpu: "500m"
+    memory: "512Mi"
+  requests:
+    cpu: "250m"
+    memory: "256Mi"
+
+ingress:
+  enabled: false

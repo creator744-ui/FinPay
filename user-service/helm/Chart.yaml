@@ -1,0 +1,7 @@
+# FinPay/user-service/helm/finpay-user-service/Chart.yaml
+apiVersion: v2
+name: finpay-user-service
+description: User Management Service for FinPay
+type: application
+version: 0.1.0
+appVersion: "1.0"
