@@ -1,6 +1,5 @@
 package com.finpay.payment_service.models;
 
-import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
 import java.util.Set;
@@ -19,7 +18,7 @@ public class Payment {
     private UUID id;
 
     @Column(nullable = false, unique = true)
-    private String paymentReference; // Unique reference for the payment
+    private String paymentReference;
 
     @Column(nullable = false)
     private BigDecimal amount;
