@@ -1,5 +1,6 @@
 package com.finpay.payment_service.models;
 
+import jakarta.persistence.Entity;
 import lombok.*;
 import java.math.BigDecimal;
 import java.util.Set;
