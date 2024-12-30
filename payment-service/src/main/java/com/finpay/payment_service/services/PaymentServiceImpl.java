@@ -9,7 +9,6 @@ import com.finpay.payment_service.models.Refund;
 import com.finpay.payment_service.models.RefundStatus;
 import com.finpay.payment_service.repository.PaymentRepository;
 import com.finpay.payment_service.repository.RefundRepository;
-import com.finpay.payment_service.clients.InvoiceServiceClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,16 +21,16 @@ public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final RefundRepository refundRepository;
-    private final InvoiceServiceClient invoiceServiceClient;
+    //private final InvoiceServiceClient invoiceServiceClient;
     private final PaymentGatewayFactory paymentGatewayFactory;
 
     public PaymentServiceImpl(PaymentRepository paymentRepository,
                               RefundRepository refundRepository,
-                              InvoiceServiceClient invoiceServiceClient,
+//                              InvoiceServiceClient invoiceServiceClient,
                               PaymentGatewayFactory paymentGatewayFactory) {
         this.paymentRepository = paymentRepository;
         this.refundRepository = refundRepository;
-        this.invoiceServiceClient = invoiceServiceClient;
+//        this.invoiceServiceClient = invoiceServiceClient;
         this.paymentGatewayFactory = paymentGatewayFactory;
     }
 
@@ -39,10 +38,10 @@ public class PaymentServiceImpl implements PaymentService {
     @Transactional
     public PaymentResponse initiatePayment(PaymentRequest paymentRequest) {
         // Validate Invoice
-        InvoiceResponse invoice = invoiceServiceClient.getInvoiceById(paymentRequest.getInvoiceId());
-        if (invoice == null || !"PAID".equalsIgnoreCase(invoice.getStatus())) {
-            throw new IllegalArgumentException("Invalid or unpaid invoice.");
-        }
+//        InvoiceResponse invoice = invoiceServiceClient.getInvoiceById(paymentRequest.getInvoiceId());
+//        if (invoice == null || !"PAID".equalsIgnoreCase(invoice.getStatus())) {
+//            throw new IllegalArgumentException("Invalid or unpaid invoice.");
+//        }
 
         // Create Payment entity
         Payment payment = Payment.builder()
