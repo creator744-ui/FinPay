@@ -5,7 +5,7 @@ import com.finpay.user_service.dtos.UserRegistrationRequest;
 import com.finpay.user_service.dtos.UserResponse;
 import com.finpay.user_service.models.Role;
 import com.finpay.user_service.models.User;
-import com.finpay.user_service.services.KafkaProducerService;
+//import com.finpay.user_service.services.KafkaProducerService;
 import com.finpay.user_service.services.UserService;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,12 +21,11 @@ import java.util.UUID;
 public class UserController {
 
     private final UserService userService;
-    private  final KafkaProducerService kafkaProducerService;
+//    private  final KafkaProducerService kafkaProducerService;
     // Constructor-based injection
-    public UserController(UserService userService, KafkaProducerService kafkaProducerService) {
+    public UserController(UserService userService) {
         this.userService = userService;
 
-        this.kafkaProducerService = kafkaProducerService;
     }
     @PostMapping("/register")
 
@@ -54,10 +53,22 @@ public class UserController {
                 savedUser.getId(),
                 savedUser.getEmail(),
                 defaultRoles);
-        kafkaProducerService.sendMessage("user-registration", event);
+//        kafkaProducerService.sendMessage("user-registration", event);
 
         UserResponse userResponse = new UserResponse(savedUser.getId(), savedUser.getName(), savedUser.getEmail());
         return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);
+    }
+    @GetMapping("/email/{email}")
+    public ResponseEntity<?> getUserByEmail(@PathVariable String email) {
+        Optional<User> userOpt = userService.findByEmail(email);
+
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+        }
+
+        User user = userOpt.get();
+        UserResponse userResponse = new UserResponse(user.getId(), user.getName(), user.getEmail());
+        return ResponseEntity.ok(userResponse);
     }
 
     @GetMapping("/profile")
