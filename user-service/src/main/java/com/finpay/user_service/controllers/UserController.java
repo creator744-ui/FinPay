@@ -5,6 +5,7 @@ import com.finpay.user_service.dtos.UserRegistrationRequest;
 import com.finpay.user_service.dtos.UserResponse;
 import com.finpay.user_service.models.Role;
 import com.finpay.user_service.models.User;
+//import com.finpay.user_service.services.KafkaProducerService;
 import com.finpay.user_service.services.UserService;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,12 +21,14 @@ import java.util.UUID;
 public class UserController {
 
     private final UserService userService;
+//    private  final KafkaProducerService kafkaProducerService;
     // Constructor-based injection
     public UserController(UserService userService) {
         this.userService = userService;
 
     }
     @PostMapping("/register")
+
     public ResponseEntity<?> registerUser(@RequestBody UserRegistrationRequest registrationRequest) {
         if (userService.existsByEmail(registrationRequest.getEmail())) {
             return ResponseEntity
@@ -33,7 +36,6 @@ public class UserController {
                     .body("Error: Email is already in use!");
         }
 
-        // Assign default role
         Set<Role> defaultRoles = Set.of(Role.ROLE_USER);
 
         User user = User.builder()
@@ -46,9 +48,27 @@ public class UserController {
 
         User savedUser = userService.save(user);
 
-        UserResponse userResponse = new UserResponse(savedUser.getId(), savedUser.getName(), savedUser.getEmail());
+        // Publish event to Kafka
+        String event = String.format("{\"id\": \"%s\", \"email\": \"%s\", \"roles\": \"%s\"}",
+                savedUser.getId(),
+                savedUser.getEmail(),
+                defaultRoles);
+//        kafkaProducerService.sendMessage("user-registration", event);
 
+        UserResponse userResponse = new UserResponse(savedUser.getId(), savedUser.getName(), savedUser.getEmail());
         return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);
+    }
+    @GetMapping("/email/{email}")
+    public ResponseEntity<?> getUserByEmail(@PathVariable String email) {
+        Optional<User> userOpt = userService.findByEmail(email);
+
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+        }
+
+        User user = userOpt.get();
+        UserResponse userResponse = new UserResponse(user.getId(), user.getName(), user.getEmail());
+        return ResponseEntity.ok(userResponse);
     }
 
     @GetMapping("/profile")
@@ -56,7 +76,7 @@ public class UserController {
         String email = authentication.getName();
         Optional<User> userOpt = userService.findByEmail(email);
 
-        if (!userOpt.isPresent()) {
+        if (userOpt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
         }
 
