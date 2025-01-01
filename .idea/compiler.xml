@@ -11,6 +11,7 @@
         <module name="config-server" />
         <module name="authentication-service" />
         <module name="user-service" />
+        <module name="discovery-server" />
       </profile>
       <profile name="Annotation profile for payment-service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
@@ -28,6 +29,7 @@
       <module name="apigateway" options="-parameters" />
       <module name="authentication-service" options="-parameters" />
       <module name="config-server" options="-parameters" />
+      <module name="discovery-server" options="-parameters" />
       <module name="payment-service" options="-parameters" />
       <module name="user-service" options="-parameters" />
     </option>
