@@ -87,9 +87,9 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-commons</artifactId>
-            <version>4.2.0-RC1</version>
-            <scope>compile</scope>
+            <version>4.2.0</version>
         </dependency>
+
 
 
     </dependencies>
