@@ -1,8 +1,6 @@
 package com.finpay.authentication.services;
-
-import com.finpay.authentication.models.User;
-import com.finpay.authentication.repository.UserRepository;
-import org.springframework.security.core.*;
+import com.finpay.authentication.clients.UserServiceClient;
+import com.finpay.authentication.dtos.UserDto;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
@@ -10,29 +8,27 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 @Service
+
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-    private final UserRepository userRepository;
+    private final UserServiceClient userServiceClient; // REST or gRPC client to fetch user data
 
-    // Constructor-based injection
-    public UserDetailsServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public UserDetailsServiceImpl(UserServiceClient userServiceClient) {
+        this.userServiceClient = userServiceClient;
     }
 
     @Override
-    public UserDetails loadUserByUsername(String email)
-            throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() ->
-                        new UsernameNotFoundException("User Not Found with email: " + email));
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        UserDto userDto = userServiceClient.getUserByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User Not Found with email: " + email));
 
-        // For simplicity, all users have ROLE_USER
-        List<GrantedAuthority> authorities =
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+        List<SimpleGrantedAuthority> authorities = userDto.getRoles().stream()
+                .map(SimpleGrantedAuthority::new)
+                .toList();
 
         return new org.springframework.security.core.userdetails.User(
-                user.getEmail(),
-                user.getPassword(),
+                userDto.getEmail(),
+                userDto.getPassword(),
                 authorities
         );
     }

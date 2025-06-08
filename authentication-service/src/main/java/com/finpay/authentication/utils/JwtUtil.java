@@ -8,9 +8,12 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Component
-@Slf4j  // Lombok annotation to add SLF4J logging
+@Slf4j
 public class JwtUtil {
 
     @Value("${jwt.secret}")
@@ -20,28 +23,42 @@ public class JwtUtil {
     private Long jwtExpirationMs;
 
     private SecretKey getSigningKey() {
-        // Use the proper secret key from jwtSecret
         return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 
     // Generate JWT Token
-    public String generateJwtToken(String email) {
+    public String generateJwtToken(String email, Set<String> roles) {
         return Jwts.builder()
                 .setSubject(email)
+                .claim("roles", roles)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
-                .signWith(getSigningKey(), SignatureAlgorithm.HS512) // Updated to use SecretKey
+                .signWith(getSigningKey(), SignatureAlgorithm.HS512)
                 .compact();
     }
 
     // Get Email from JWT Token
     public String getEmailFromJwtToken(String token) {
-        return Jwts.parserBuilder()  // Updated to use parserBuilder
+        return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
+    }
+
+    // Get Roles from JWT Token
+    public Set<String> getRolesFromJwtToken(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        @SuppressWarnings("unchecked")
+        Set<String> roles = new HashSet<>(((List<String>) claims.get("roles")));
+
+        return roles;
     }
 
     // Validate JWT Token
