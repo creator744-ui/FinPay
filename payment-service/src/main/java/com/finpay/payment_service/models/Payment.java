@@ -1,12 +1,7 @@
 package com.finpay.payment_service.models;
 
-import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
 
@@ -23,7 +18,7 @@ public class Payment {
     private UUID id;
 
     @Column(nullable = false, unique = true)
-    private String paymentReference; // Unique reference for the payment
+    private String paymentReference;
 
     @Column(nullable = false)
     private BigDecimal amount;
@@ -35,11 +30,13 @@ public class Payment {
     @Column(nullable = false)
     private PaymentStatus status;
 
-    @Column(nullable = false)
-    private UUID invoiceId; // Reference to Invoice managed by Invoice Service
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "payment_method_id")
+    private PaymentMethod paymentMethod;
 
-    @Column(nullable = false)
-    private String paymentGateway; // e.g., Stripe, PayPal
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "payment_gateway_id")
+    private PaymentGateway paymentGateway;
 
     @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Transaction> transactions;
@@ -47,10 +44,8 @@ public class Payment {
     @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Refund> refunds;
 
-    @CreationTimestamp
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
     private LocalDateTime updatedAt;
 }

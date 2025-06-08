@@ -1,6 +1,5 @@
 package com.finpay.payment_service.models;
 
-import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

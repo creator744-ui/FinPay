@@ -1,6 +1,5 @@
 package com.finpay.payment_service.models;
 
-import jakarta.persistence.*;
 import lombok.*;
 import java.util.Set;
 import java.util.UUID;
